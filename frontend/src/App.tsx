@@ -12,6 +12,7 @@ const Chat = React.lazy(() => import('@/pages/Chat'))
 const Documents = React.lazy(() => import('@/pages/Documents'))
 const Analytics = React.lazy(() => import('@/pages/Analytics'))
 const Settings = React.lazy(() => import('@/pages/Settings'))
+const Widgets = React.lazy(() => import('@/pages/Widgets'))
 const NotFound = React.lazy(() => import('@/pages/NotFound'))
 
 function App() {
@@ -64,6 +65,14 @@ function App() {
               element={
                 <React.Suspense fallback={<LoadingSpinner />}>
                   <Settings />
+                </React.Suspense>
+              }
+            />
+            <Route
+              path="widgets"
+              element={
+                <React.Suspense fallback={<LoadingSpinner />}>
+                  <Widgets />
                 </React.Suspense>
               }
             />

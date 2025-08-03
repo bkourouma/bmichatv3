@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test BMI Chat Widget</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .test-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-info h3 {
+            color: #0369a1;
+            margin-bottom: 10px;
+        }
+        
+        .test-info p {
+            color: #0c4a6e;
+            margin-bottom: 10px;
+        }
+        
+        .instructions {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .instructions h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            color: #78350f;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test BMI Chat Widget</h1>
+        <p class="subtitle">Testez le widget de chat BMI sur cette page</p>
+        
+        <div class="test-info">
+            <h3>📋 Informations de test</h3>
+            <p><strong>Frontend:</strong> http://localhost:3003</p>
+            <p><strong>Backend:</strong> http://localhost:3006</p>
+            <p><strong>Widget JS:</strong> http://localhost:3006/widget/chat-widget.js</p>
+        </div>
+        
+        <div class="instructions">
+            <h4>🎯 Instructions de test</h4>
+            <ol>
+                <li>Cliquez sur l'icône de chat en bas à droite de cette page</li>
+                <li>Le widget devrait s'ouvrir avec le message de bienvenue</li>
+                <li>Essayez d'envoyer un message pour tester la fonctionnalité</li>
+                <li>Vérifiez que le widget se ferme et s'ouvre correctement</li>
+            </ol>
+        </div>
+        
+        <div class="test-info">
+            <h3>🔧 Configuration du widget</h3>
+            <p><strong>Position:</strong> Droite (par défaut)</p>
+            <p><strong>Couleur:</strong> Bleu (#3b82f6)</p>
+            <p><strong>Assistant:</strong> Akissi</p>
+            <p><strong>Entreprise:</strong> BMI</p>
+        </div>
+    </div>
+
+    <!-- Widget Script -->
+    <script src="http://localhost:3006/widget/chat-widget.js"></script>
+    <script>
+        // Initialize the widget
+        BMIWidget.init({
+            position: 'right',
+            accentColor: '#3b82f6',
+            companyName: 'BMI',
+            assistantName: 'Akissi',
+            welcomeMessage: 'Bonjour ! Je suis Akissi, votre assistante BMI. Comment puis-je vous aider ?'
+        });
+    </script>
+</body>
+</html> 

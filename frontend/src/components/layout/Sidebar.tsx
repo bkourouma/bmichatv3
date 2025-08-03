@@ -7,6 +7,7 @@ import {
   ChartBarIcon,
   Cog6ToothIcon,
   SparklesIcon,
+  GlobeAltIcon,
 } from '@heroicons/react/24/outline'
 import {
   HomeIcon as HomeIconSolid,
@@ -14,6 +15,7 @@ import {
   DocumentTextIcon as DocumentIconSolid,
   ChartBarIcon as ChartIconSolid,
   Cog6ToothIcon as CogIconSolid,
+  GlobeAltIcon as GlobeIconSolid,
 } from '@heroicons/react/24/solid'
 
 import { cn } from '@/lib/utils'
@@ -42,6 +44,12 @@ const navigation = [
     href: '/analytics',
     icon: ChartBarIcon,
     iconSolid: ChartIconSolid,
+  },
+  {
+    name: 'Widgets',
+    href: '/widgets',
+    icon: GlobeAltIcon,
+    iconSolid: GlobeIconSolid,
   },
   {
     name: 'Paramètres',

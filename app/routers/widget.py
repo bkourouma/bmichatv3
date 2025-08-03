@@ -7,10 +7,12 @@ Handles widget configuration, chat requests, and static file serving.
 
 from typing import Dict, Any, Optional
 
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Response
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger
+import os
 
 from app.config import settings
 from app.core.exceptions import ValidationError
@@ -193,4 +195,76 @@ async def widget_status() -> Dict[str, Any]:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get widget status"
+        )
+
+
+@router.get("/chat-widget.js", summary="Serve widget JavaScript")
+async def serve_widget_js() -> Response:
+    """
+    Serve the widget JavaScript file.
+    
+    Returns:
+        JavaScript file content
+    """
+    try:
+        # Path to the widget JavaScript file
+        widget_path = os.path.join(os.path.dirname(__file__), "..", "..", "widget", "dist", "chat-widget.js")
+        
+        # Fallback to source file if dist doesn't exist
+        if not os.path.exists(widget_path):
+            widget_path = os.path.join(os.path.dirname(__file__), "..", "..", "widget", "src", "chat-widget.js")
+        
+        if os.path.exists(widget_path):
+            return FileResponse(
+                widget_path,
+                media_type="application/javascript",
+                headers={"Cache-Control": "public, max-age=3600"}
+            )
+        else:
+            # Return a basic widget if file doesn't exist
+            basic_widget = '''
+// BMI Chat Widget - Basic Version
+(function() {
+    'use strict';
+    
+    window.BMIWidget = {
+        init: function(options) {
+            console.log('BMI Chat Widget initialized with options:', options);
+            // Basic widget implementation
+            const button = document.createElement('div');
+            button.style.cssText = `
+                position: fixed;
+                right: 20px;
+                bottom: 20px;
+                width: 60px;
+                height: 60px;
+                background: ${options.accentColor || '#3b82f6'};
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            `;
+            button.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+            button.onclick = function() {
+                alert('BMI Chat Widget - Version de démonstration\\n\\nFonctionnalités complètes disponibles dans la version finale.');
+            };
+            document.body.appendChild(button);
+        }
+    };
+})();
+'''
+            return Response(
+                content=basic_widget,
+                media_type="application/javascript",
+                headers={"Cache-Control": "public, max-age=3600"}
+            )
+            
+    except Exception as e:
+        logger.error(f"❌ Failed to serve widget JavaScript: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to serve widget JavaScript"
         )

@@ -113,6 +113,7 @@ echo Access points after starting:
 echo - Frontend: http://localhost:3003
 echo - Backend API: http://localhost:3006
 echo - API Docs: http://localhost:3006/docs
+echo - Widget Demo: http://localhost:3006/widget-test-demo.html
 echo.
 
 pause
