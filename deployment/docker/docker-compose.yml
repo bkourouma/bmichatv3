@@ -1,0 +1,74 @@
+# ───────────────────────────────── docker-compose.yml ─────────────────────────
+version: "3.8"
+
+services:
+  # ─────────── FastAPI backend (unchanged) ───────────
+  backend:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.backend
+    container_name: bmi-chat-backend
+    restart: unless-stopped
+    ports:
+      - "3006:3006"
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - API_HOST=0.0.0.0
+      - API_PORT=3006
+      - API_WORKERS=2
+      - CORS_ORIGINS=["http://localhost:8095","http://bmi.engage-360.net"]
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE:-0.0}
+      - OPENAI_MAX_TOKENS=${OPENAI_MAX_TOKENS:-2000}
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=sqlite:///data/sqlite/bmi_chat.db
+      - VECTOR_DB_PATH=data/vectors
+      - UPLOAD_DIR=data/uploads
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_FILE=logs/app.log
+    volumes:
+      - backend_data:/app/data
+      - backend_logs:/app/logs
+    networks:
+      - bmi-chat-network
+    healthcheck:
+      test:
+        ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:3006/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ─────────── React frontend (serves bundle & proxies /api) ───────────
+  frontend:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.frontend
+    container_name: bmi-chat-frontend
+    restart: unless-stopped
+    ports:
+      - "8095:80"                 # host 8095 → container 80
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - bmi-chat-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# ─────────── Named volumes ───────────
+volumes:
+  backend_data:
+  backend_logs:
+
+# ─────────── Bridge network ───────────
+networks:
+  bmi-chat-network:
+    driver: bridge
+# ─────────────────────────────── end file ─────────────────────────────────────

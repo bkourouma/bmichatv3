@@ -1,0 +1,18 @@
+---QA---
+Quels documents sont nécessaires pour ouvrir un compte TrésorMoney ?
+Pour ouvrir un compte TrésorMoney, vous devez fournir certaines pièces justificatives afin de respecter la réglementation (KYC – Know Your Customer) :
+• Une pièce d'identité valide – par exemple votre Carte Nationale d'Identité, passeport ou permis de conduire en cours de validité. (Pour une entreprise ou association, un extrait du Registre de Commerce et du Crédit Mobilier est requis.)
+• Un numéro de téléphone mobile ivoirien actif – TrésorMoney fonctionne avec n'importe quel opérateur (Orange, MTN, Moov), mais chaque compte est lié à un numéro unique. Il faut donc avoir un numéro de portable à associer au compte.
+• Si vous êtes mineur non émancipé – une autorisation parentale écrite signée par votre parent/tuteur légal sera demandée, accompagnée de la pièce d'identité valide de ce parent/tuteur.
+• Éventuellement, une preuve de domicile en Côte d'Ivoire (dans la plupart des cas, ce n'est pas obligatoire pour le compte TrésorMoney, mais la souscription est réservée aux personnes résidant en Côte d'Ivoire).
+En pratique, si vous vous rendez dans un point de service TrésorMoney ou une agence du Trésor pour ouvrir le compte, apportez au minimum votre pièce d'identité et votre téléphone. Le formulaire d'inscription sera rempli avec vos informations personnelles (nom, date de naissance, etc.) d'après ces documents. Bon à savoir : si vous ne présentez pas toutes les pièces demandées, un compte "allégé" à fonctionnalités limitées peut être ouvert (avec un plafond de transactions mensuel de 200 000 FCFA) en attendant la fourniture des documents manquants.
+---QA---
+Est-ce que je peux avoir plusieurs comptes TrésorMoney avec différents numéros ?
+Non, un même numéro de téléphone mobile ne peut correspondre qu'à un seul compte TrésorMoney. Chaque compte est lié à un numéro unique. Si vous souhaitez avoir plusieurs comptes, vous devrez utiliser des numéros de téléphone différents pour chaque compte.
+---QA---
+Comment créer un compte TrésorMoney ?
+Pour créer un compte TrésorMoney, vous avez plusieurs options :
+1. Via USSD : Composez le code USSD de votre opérateur (Orange, MTN, Moov) et suivez les instructions à l'écran.
+2. Via l'application mobile : Téléchargez l'application TrésorMoney sur Android ou iOS et créez votre compte directement dans l'app.
+3. Via le site web officiel : Remplissez le formulaire en ligne sur le site TrésorMoney.
+Toutes ces méthodes sont gratuites et ouvertes à tous les opérateurs ivoiriens. 

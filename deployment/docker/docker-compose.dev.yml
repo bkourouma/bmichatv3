@@ -1,0 +1,107 @@
+version: '3.8'
+
+# Development Docker Compose Configuration
+# Complete development setup with hot reload and debugging
+
+services:
+  # Backend with development settings
+  backend:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.backend
+    container_name: bmi-chat-backend-dev
+    restart: unless-stopped
+    ports:
+      - "3007:3006"  # Different port to avoid conflicts
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - API_WORKERS=1
+      - API_HOST=0.0.0.0
+      - API_PORT=3006
+      - CORS_ORIGINS=["http://localhost:3003","http://127.0.0.1:3003"]
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE:-0.0}
+      - OPENAI_MAX_TOKENS=${OPENAI_MAX_TOKENS:-4000}
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=sqlite:///data/sqlite/bmi_chat.db
+      - VECTOR_DB_PATH=data/vectors
+      - UPLOAD_DIR=data/uploads
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - LOG_FILE=logs/app.log
+    volumes:
+      # Mount source code for development (hot reload)
+      - ../../app:/app/app:ro
+      - ../../data:/app/data
+      - ../../logs:/app/logs
+    networks:
+      - bmi-chat-network
+    healthcheck:
+      test:
+        ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:3006/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend with development settings
+  frontend:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.frontend
+      target: dev
+    container_name: bmi-chat-frontend-dev
+    restart: unless-stopped
+    command: npm run dev
+    volumes:
+      # Mount source code for hot reload
+      - ../../frontend/src:/app/src:ro
+      - ../../frontend/public:/app/public:ro
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3007
+    ports:
+      - "3003:3003"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - bmi-chat-network
+
+  # Development database viewer (optional)
+  adminer:
+    image: adminer
+    container_name: bmi-chat-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - bmi-chat-network
+    profiles:
+      - dev-tools
+
+  # Development log viewer (optional)
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: bmi-chat-logs
+    restart: unless-stopped
+    ports:
+      - "9999:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - bmi-chat-network
+    profiles:
+      - dev-tools
+
+# Named volumes
+volumes:
+  backend_data:
+  backend_logs:
+
+# Bridge network
+networks:
+  bmi-chat-network:
+    driver: bridge

@@ -1,0 +1,11 @@
+Test Document for BMI Chat
+
+This is a test document to verify that document processing works correctly with the real OpenAI API key.
+
+Key Features:
+- Document upload and processing
+- Text extraction and chunking
+- Vector embedding generation
+- Search functionality
+
+This document should be processed successfully and become searchable in the knowledge base. 

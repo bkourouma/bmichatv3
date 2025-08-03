@@ -1,0 +1,52 @@
+# BMI Chat Backend Dependencies
+# Core dependencies only - let pip resolve versions
+
+# Core FastAPI dependencies
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy
+aiosqlite
+
+# Vector database
+chromadb
+
+# OpenAI and AI
+openai
+langchain
+langchain-chroma
+langchain-openai
+langchain-community
+
+# Cross-encoder for re-ranking
+sentence-transformers
+torch
+
+# Data validation
+pydantic[email]
+pydantic-settings
+
+# Environment and configuration
+python-dotenv
+python-multipart
+
+# Document processing
+pypdf
+python-docx
+markdown
+
+# HTTP client
+httpx
+
+# Utilities
+tenacity
+slowapi
+aiofiles
+
+# Security
+python-jose[cryptography]
+passlib[bcrypt]
+
+# Logging
+loguru

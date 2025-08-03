@@ -1,0 +1,84 @@
+version: "3.8"
+
+services:
+  # Backend with development settings
+  backend:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile.backend
+    container_name: bmi-chat-backend-dev
+    restart: unless-stopped
+    ports:
+      - "3007:3006"
+    env_file:
+      - .env
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - API_WORKERS=1
+    volumes:
+      - ./app:/app/app:ro
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - bmi-chat-network
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:3006/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend with development settings
+  frontend:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile.frontend
+      target: builder
+    container_name: bmi-chat-frontend-dev
+    restart: unless-stopped
+    command: npm run dev
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./frontend/src:/app/src:ro
+      - ./frontend/public:/app/public:ro
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3007
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - bmi-chat-network
+
+  # Development database viewer (optional)
+  adminer:
+    image: adminer
+    container_name: bmi-chat-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - bmi-chat-network
+    profiles:
+      - dev-tools
+
+  # Development log viewer (optional)
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: bmi-chat-logs
+    restart: unless-stopped
+    ports:
+      - "9999:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - bmi-chat-network
+    profiles:
+      - dev-tools
+
+networks:
+  bmi-chat-network:
+    driver: bridge 
