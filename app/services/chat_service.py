@@ -256,8 +256,9 @@ class ChatService:
                 db_session=db_session,
                 k=max_chunks,
                 keywords_filter=keywords_filter,
-                confidence_threshold=0.8,
-                fallback_threshold=0.3
+                confidence_threshold=0.0,
+                fallback_threshold=0.0,
+                use_reranking=False
             )
             
             logger.info(f"📚 Retrieved {len(context_chunks)} context chunks using {strategy} strategy")

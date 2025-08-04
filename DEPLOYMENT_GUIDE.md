@@ -1,277 +1,262 @@
-# BMI Chat Production Deployment Guide
+# 🚀 BMI Chat v2 Deployment Guide
 
-## 🚀 Server Deployment Instructions
+## 📋 Prerequisites
 
-### Prerequisites
-- Docker and Docker Compose installed on the server
-- Domain configured (e.g., `bmi.engage-360.net`)
-- SSL certificate (recommended for production)
+### Server Requirements
+- Linux VPS (Ubuntu 20.04+ recommended)
+- SSH access to the server
+- At least 2GB RAM
+- At least 10GB free disk space
+- Domain name (optional but recommended)
 
-### 1. Environment Configuration
+### Required Software
+- Docker
+- Docker Compose
+- Git
 
-Copy the production environment file:
+## 🔧 Step-by-Step Deployment
+
+### Step 1: Connect to Your Server
+
 ```bash
-cp env.production .env
+ssh root@your-server-ip
 ```
 
-Edit the `.env` file with your production settings:
+### Step 2: Install Dependencies
+
 ```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install required packages
+sudo apt install -y curl wget git unzip software-properties-common
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Log out and back in for Docker group changes
+exit
+ssh root@your-server-ip
+```
+
+### Step 3: Create Project Directory
+
+```bash
+# Create project directory
+sudo mkdir -p /opt/bmichat
+sudo chown $USER:$USER /opt/bmichat
+cd /opt/bmichat
+```
+
+### Step 4: Download and Run Deployment Script
+
+```bash
+# Download the deployment script
+wget https://raw.githubusercontent.com/bkourouma/bmichatv2/main/auto-deploy.sh
+
+# Make it executable
+chmod +x auto-deploy.sh
+
+# Run the deployment
+./auto-deploy.sh
+```
+
+### Step 5: Configure Environment Variables
+
+```bash
+# Edit the environment file
 nano .env
 ```
 
-**Important settings to update:**
-- `OPENAI_API_KEY`: Your OpenAI API key
-- `SECRET_KEY`: A long, random secret key
-- `CORS_ORIGINS`: Update with your domain
-- `ENVIRONMENT=production`
-- `DEBUG=false`
-
-### 2. Build Widget for Production
-
-The widget needs to be built for production:
+**Required Configuration:**
 ```bash
-cd widget
-npm install
-npm run build
-cd ..
+# OpenAI Configuration (REQUIRED)
+OPENAI_API_KEY=your_actual_openai_api_key_here
+
+# Security (REQUIRED)
+SECRET_KEY=your_long_random_secret_key_here
+
+# Environment
+ENVIRONMENT=production
+DEBUG=false
+
+# CORS Settings (update with your domain)
+CORS_ORIGINS=["https://yourdomain.com","http://yourdomain.com"]
 ```
 
-### 3. Build Frontend for Production
+### Step 6: Deploy Application
 
-Build the React frontend:
 ```bash
-cd frontend
-npm install
-npm run build
-cd ..
+# Deploy the application
+docker-compose up -d --build
 ```
 
-### 4. Deploy with Docker
+### Step 7: Verify Deployment
 
-Use the production deployment script:
 ```bash
-chmod +x deploy-production.sh
-./deploy-production.sh
+# Check if services are running
+docker-compose ps
+
+# Test health endpoint
+curl http://localhost:3006/health
+
+# Test frontend
+curl http://localhost:8095
 ```
 
-Or manually:
+## 🌐 Domain Configuration (Optional)
+
+### Step 8: Configure Domain
+
+1. **Point your domain** to your server's IP address
+2. **Update CORS settings** in `.env` file with your domain
+3. **Restart services**:
+   ```bash
+   docker-compose restart
+   ```
+
+### Step 9: Setup SSL (Optional)
+
 ```bash
-# Stop existing containers
-docker-compose -f deployment/docker/docker-compose.yml down
+# Install Certbot
+sudo apt install -y certbot python3-certbot-nginx
 
-# Clean up
-docker system prune -f
-
-# Build and start
-docker-compose -f deployment/docker/docker-compose.yml up -d --build
+# Get SSL certificate
+sudo certbot --nginx -d yourdomain.com --non-interactive --agree-tos --email your-email@domain.com
 ```
 
-### 5. Verify Deployment
-
-Test all endpoints:
-```bash
-# Health check
-curl http://your-domain:3003/health
-
-# API endpoints
-curl -X POST http://your-domain:3003/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message": "test"}'
-
-# Widget API
-curl -X POST http://your-domain:3003/widget/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message": "test", "session_id": "test-session"}'
-
-# Widget static files
-curl http://your-domain:3003/widget/chat-widget.js
-```
-
-## 🔧 Widget Integration
-
-### For Production Websites
-
-Add this code to any website to embed the chat widget:
-
-```html
-<script>
-(function() {
-    var script = document.createElement('script');
-    script.src = 'https://your-domain.com/widget/chat-widget.js';
-    script.setAttribute('data-api-url', 'https://your-domain.com');
-    script.setAttribute('data-position', 'right');
-    script.setAttribute('data-accent-color', '#0056b3');
-    script.async = true;
-    document.head.appendChild(script);
-})();
-</script>
-```
-
-### Widget Configuration Options
-
-The widget supports these configuration options:
-- `data-api-url`: The base URL of your API (required)
-- `data-position`: 'right' or 'left' (default: 'right')
-- `data-accent-color`: Brand color (default: '#0056b3')
-- `data-company-name`: Company name (default: 'BMI')
-- `data-assistant-name`: Assistant name (default: 'Akissi')
-
-## 📋 Service URLs
-
-After deployment, your services will be available at:
-
-- **Frontend Application**: `http://your-domain:3003`
-- **Backend API**: `http://your-domain:3006`
-- **API Documentation**: `http://your-domain:3006/docs`
-- **Widget API**: `http://your-domain:3003/widget/chat`
-- **Health Check**: `http://your-domain:3003/health`
-
-## 🔍 Monitoring and Logs
-
-### View Logs
-```bash
-# All services
-docker-compose -f deployment/docker/docker-compose.yml logs -f
-
-# Specific service
-docker-compose -f deployment/docker/docker-compose.yml logs -f backend
-docker-compose -f deployment/docker/docker-compose.yml logs -f frontend
-```
+## 📊 Monitoring and Maintenance
 
 ### Check Service Status
 ```bash
-docker-compose -f deployment/docker/docker-compose.yml ps
+# View running containers
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+
+# Check specific service logs
+docker-compose logs -f backend
+docker-compose logs -f frontend
 ```
 
-### Health Checks
-```bash
-# Backend health
-curl http://your-domain:3006/health
-
-# Frontend health
-curl http://your-domain:3003/health
-```
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-1. **Widget API 405 Error**
-   - Check nginx configuration
-   - Verify widget proxy is configured correctly
-   - Check backend logs for errors
-
-2. **CORS Errors**
-   - Update CORS_ORIGINS in .env file
-   - Ensure domain is included in allowed origins
-
-3. **Database Issues**
-   - Check data directory permissions
-   - Verify SQLite database is accessible
-
-4. **Memory Issues**
-   - Monitor container resource usage
-   - Adjust API_WORKERS if needed
-
-### Debug Commands
-
-```bash
-# Check container status
-docker ps
-
-# View nginx configuration
-docker exec bmi-chat-frontend cat /etc/nginx/nginx.conf
-
-# Test nginx configuration
-docker exec bmi-chat-frontend nginx -t
-
-# Check backend logs
-docker logs bmi-chat-backend
-
-# Check frontend logs
-docker logs bmi-chat-frontend
-```
-
-## 🔒 Security Considerations
-
-1. **Environment Variables**
-   - Never commit `.env` files to version control
-   - Use strong, unique SECRET_KEY
-   - Keep OpenAI API key secure
-
-2. **Network Security**
-   - Use HTTPS in production
-   - Configure firewall rules
-   - Limit exposed ports
-
-3. **Data Protection**
-   - Regular database backups
-   - Secure file uploads
-   - Monitor access logs
-
-## 📊 Performance Optimization
-
-1. **Docker Optimization**
-   - Use multi-stage builds
-   - Optimize image layers
-   - Use .dockerignore files
-
-2. **Nginx Configuration**
-   - Enable gzip compression
-   - Configure caching headers
-   - Optimize proxy settings
-
-3. **Application Tuning**
-   - Adjust API_WORKERS based on CPU cores
-   - Configure proper timeouts
-   - Monitor memory usage
-
-## 🔄 Updates and Maintenance
-
-### Updating the Application
+### Update Application
 ```bash
 # Pull latest changes
 git pull origin main
 
 # Rebuild and restart
-docker-compose -f deployment/docker/docker-compose.yml down
-docker-compose -f deployment/docker/docker-compose.yml up -d --build
+docker-compose down
+docker-compose up -d --build
 ```
 
-### Database Backups
+### Backup Data
 ```bash
-# Backup SQLite database
-docker exec bmi-chat-backend cp /app/data/sqlite/bmi_chat.db /app/data/sqlite/bmi_chat_backup_$(date +%Y%m%d_%H%M%S).db
+# Create backup
+mkdir -p /opt/backups
+tar -czf /opt/backups/bmichat_$(date +%Y%m%d_%H%M%S).tar.gz data/
 ```
 
-### Log Rotation
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **Port already in use**
+   ```bash
+   sudo netstat -tulpn | grep :3006
+   sudo kill -9 <PID>
+   ```
+
+2. **Docker permission issues**
+   ```bash
+   sudo usermod -aG docker $USER
+   newgrp docker
+   ```
+
+3. **Build failures**
+   ```bash
+   docker system prune -a
+   docker-compose build --no-cache
+   ```
+
+4. **Environment variables not loaded**
+   ```bash
+   # Check .env file
+   cat .env
+   
+   # Restart services
+   docker-compose restart
+   ```
+
+### Health Checks
+
 ```bash
-# Clean old logs
-docker system prune -f
+# Backend health
+curl http://localhost:3006/health
+
+# Frontend health
+curl http://localhost:8095
+
+# API documentation
+curl http://localhost:3006/docs
 ```
 
-## ✅ Deployment Checklist
+## 📈 Performance Optimization
 
-- [ ] Environment variables configured
-- [ ] Widget built for production
-- [ ] Frontend built for production
-- [ ] Docker containers running
-- [ ] All endpoints responding (200 status)
-- [ ] Widget API working
-- [ ] Health checks passing
-- [ ] SSL certificate configured (if using HTTPS)
-- [ ] Domain DNS configured
-- [ ] Monitoring set up
-- [ ] Backup strategy in place
+### Production Settings
+```bash
+# In .env file
+API_WORKERS=4
+LOG_LEVEL=INFO
+DEBUG=false
+ENVIRONMENT=production
+```
 
-## 🆘 Support
+### Resource Monitoring
+```bash
+# Monitor container resources
+docker stats
+
+# Check disk usage
+df -h
+
+# Monitor memory usage
+free -h
+```
+
+## 🔒 Security Checklist
+
+- [ ] Change default passwords
+- [ ] Use strong SECRET_KEY
+- [ ] Configure firewall
+- [ ] Enable SSL/TLS
+- [ ] Regular security updates
+- [ ] Monitor logs for suspicious activity
+- [ ] Backup data regularly
+
+## 📞 Support
 
 If you encounter issues:
 
 1. Check the logs: `docker-compose logs -f`
-2. Verify environment variables
-3. Test endpoints individually
-4. Check nginx configuration
-5. Verify widget build process
+2. Verify environment variables: `cat .env`
+3. Test endpoints: `curl http://localhost:3006/health`
+4. Check Docker status: `docker-compose ps`
 
-The application is now ready for production deployment with all endpoints working correctly! 
+## 🎉 Success!
+
+Your BMI Chat application should now be running at:
+- **Frontend**: http://your-server-ip:8095
+- **Backend API**: http://your-server-ip:3006
+- **API Documentation**: http://your-server-ip:3006/docs
+- **Health Check**: http://your-server-ip:3006/health
+
+---
+
+**🎉 Your BMI Chat application is now deployed and ready to use!** 

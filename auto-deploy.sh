@@ -1,293 +1,265 @@
 #!/bin/bash
 
-# 🚀 Script de Déploiement Automatisé BMI Chat
-# Usage: ./auto-deploy.sh
+# 🚀 Automated BMI Chat Deployment Script
+# This script handles Git authentication and deploys the updated application
 
 set -e
 
 # Configuration
-PROJECT_DIR="/var/www/bmichat"
-DOMAIN="bmi-engage-360.net"
-EMAIL="admin@engage-360.net"
-IP="147.93.44.169"
+GIT_REPO="https://github.com/bkourouma/bmichatv2.git"
+GIT_TOKEN="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"
+PROJECT_DIR="/opt/bmichat"
+BACKUP_DIR="/opt/backups/bmichat"
 
-# Couleurs
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
-log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
-
-echo "🚀 Déploiement Automatisé BMI Chat"
-echo "=================================="
-
-# Étape 1: Nettoyage complet
-log_info "Étape 1: Nettoyage complet du serveur..."
-docker stop $(docker ps -aq) 2>/dev/null || true
-docker rm $(docker ps -aq) 2>/dev/null || true
-docker volume prune -f
-docker system prune -af
-rm -rf $PROJECT_DIR/*
-mkdir -p $PROJECT_DIR
-cd $PROJECT_DIR
-log_success "Nettoyage terminé"
-
-# Étape 2: Installation Docker
-log_info "Étape 2: Installation de Docker..."
-apt update -y
-apt install -y curl wget git unzip software-properties-common apt-transport-https ca-certificates gnupg lsb-release
-
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-apt update
-apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-
-systemctl start docker
-systemctl enable docker
-usermod -aG docker $USER
-log_success "Docker installé"
-
-# Étape 3: Clonage du repository
-log_info "Étape 3: Clonage du repository GitHub..."
-git clone https://github.com/bkourouma/bmichat.git .
-log_success "Repository cloné"
-
-# Étape 4: Configuration automatique
-log_info "Étape 4: Configuration automatique..."
-mkdir -p data/sqlite data/uploads data/vectors logs
-
-# Créer le fichier .env automatiquement
-cat > .env << EOF
-# =============================================================================
-# Application Configuration
-# =============================================================================
-ENVIRONMENT=production
-DEBUG=false
-LOG_LEVEL=INFO
-
-# =============================================================================
-# API Configuration
-# =============================================================================
-API_HOST=0.0.0.0
-API_PORT=3006
-API_WORKERS=4
-CORS_ORIGINS=["https://$DOMAIN","http://$DOMAIN","http://$IP:3003"]
-
-# =============================================================================
-# OpenAI Configuration
-# =============================================================================
-OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_MODEL=gpt-4o
-OPENAI_TEMPERATURE=0.0
-OPENAI_MAX_TOKENS=4000
-
-# =============================================================================
-# Database Configuration
-# =============================================================================
-DATABASE_URL=sqlite:///data/sqlite/bmi_chat.db
-VECTOR_DB_PATH=data/vectors
-UPLOAD_DIR=data/uploads
-
-# =============================================================================
-# Security
-# =============================================================================
-SECRET_KEY=$(openssl rand -hex 32)
-
-# =============================================================================
-# Document Processing
-# =============================================================================
-CHUNK_SIZE=4000
-CHUNK_OVERLAP=800
-MAX_CHUNKS_PER_DOCUMENT=100
-
-# =============================================================================
-# Chat Configuration
-# =============================================================================
-MAX_CHAT_HISTORY=10
-DEFAULT_RETRIEVAL_K=5
-MAX_RETRIEVAL_K=10
-CHAT_TIMEOUT_SECONDS=30
-
-# =============================================================================
-# Logging
-# =============================================================================
-LOG_FILE=logs/app.log
-LOG_MAX_SIZE=10MB
-LOG_BACKUP_COUNT=5
-
-# =============================================================================
-# Performance
-# =============================================================================
-MAX_UPLOAD_SIZE=50MB
-RATE_LIMIT_PER_MINUTE=60
-CACHE_TTL_SECONDS=300
-EOF
-
-log_success "Configuration créée"
-
-# Étape 5: Configuration Nginx
-log_info "Étape 5: Configuration Nginx..."
-mkdir -p deployment/nginx/conf.d
-
-cat > deployment/nginx/conf.d/$DOMAIN.conf << EOF
-server {
-    listen 80;
-    server_name $DOMAIN;
-    return 301 https://\$server_name\$request_uri;
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
-server {
-    listen 443 ssl http2;
-    server_name $DOMAIN;
-
-    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
-    ssl_prefer_server_ciphers off;
-
-    add_header X-Frame-Options DENY;
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-
-    location / {
-        proxy_pass http://frontend:3003;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-
-    location /api/ {
-        proxy_pass http://backend:3006;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
-    }
-
-    location /health {
-        proxy_pass http://backend:3006/health;
-        access_log off;
-    }
-
-    location /widget/ {
-        proxy_pass http://frontend:3003/widget/;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_proxied any;
-    gzip_comp_level 6;
-    gzip_types text/plain text/css text/xml text/javascript application/json application/javascript application/xml+rss application/atom+xml image/svg+xml;
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
-EOF
 
-log_success "Configuration Nginx créée"
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
 
-# Étape 6: Déploiement Docker
-log_info "Étape 6: Déploiement Docker..."
-chmod +x deploy-vps.sh
-./deploy-vps.sh install
-./deploy-vps.sh deploy
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
 
-# Attendre que les services démarrent
-sleep 30
+# Function to check if running as root
+check_root() {
+    if [[ $EUID -eq 0 ]]; then
+        print_error "This script should not be run as root"
+        exit 1
+    fi
+}
 
-log_success "Déploiement Docker terminé"
+# Function to check prerequisites
+check_prerequisites() {
+    print_status "Checking prerequisites..."
+    
+    # Check Docker
+    if ! command -v docker &> /dev/null; then
+        print_error "Docker is not installed. Please install Docker first."
+        exit 1
+    fi
+    
+    # Check Docker Compose
+    if ! command -v docker-compose &> /dev/null; then
+        print_error "Docker Compose is not installed. Please install Docker Compose first."
+        exit 1
+    fi
+    
+    # Check Git
+    if ! command -v git &> /dev/null; then
+        print_error "Git is not installed. Please install Git first."
+        exit 1
+    fi
+    
+    print_success "Prerequisites checked"
+}
 
-# Étape 7: Configuration Pare-feu
-log_info "Étape 7: Configuration Pare-feu..."
-apt install -y ufw
-ufw default deny incoming
-ufw default allow outgoing
-ufw allow ssh
-ufw allow 80/tcp
-ufw allow 443/tcp
-ufw allow 3003/tcp
-ufw allow 3006/tcp
-ufw --force enable
-log_success "Pare-feu configuré"
+# Function to create backup
+create_backup() {
+    print_status "Creating backup of current data..."
+    
+    mkdir -p $BACKUP_DIR
+    DATE=$(date +%Y%m%d_%H%M%S)
+    
+    if [ -d "$PROJECT_DIR" ]; then
+        cd $PROJECT_DIR
+        
+        # Backup data directory if it exists
+        if [ -d "data" ]; then
+            tar -czf $BACKUP_DIR/data_backup_$DATE.tar.gz data/
+            print_success "Data backup created: $BACKUP_DIR/data_backup_$DATE.tar.gz"
+        fi
+        
+        # Backup .env file if it exists
+        if [ -f ".env" ]; then
+            cp .env $BACKUP_DIR/.env_backup_$DATE
+            print_success "Environment backup created: $BACKUP_DIR/.env_backup_$DATE"
+        fi
+    else
+        print_warning "No existing project directory found, skipping backup"
+    fi
+}
 
-# Étape 8: Script de sauvegarde
-log_info "Étape 8: Configuration sauvegarde..."
-cat > backup.sh << 'EOF'
-#!/bin/bash
-BACKUP_DIR="/var/backups/bmichat"
-DATE=$(date +%Y%m%d_%H%M%S)
-mkdir -p $BACKUP_DIR
-docker run --rm -v bmichat_backend_data:/data -v $BACKUP_DIR:/backup alpine tar czf /backup/data_$DATE.tar.gz -C /data .
-docker run --rm -v bmichat_backend_logs:/logs -v $BACKUP_DIR:/backup alpine tar czf /backup/logs_$DATE.tar.gz -C /logs .
-echo "Sauvegarde terminée: $BACKUP_DIR/data_$DATE.tar.gz"
-EOF
+# Function to clone or update repository
+update_repository() {
+    print_status "Updating repository..."
+    
+    # Create project directory if it doesn't exist
+    sudo mkdir -p $PROJECT_DIR
+    sudo chown $USER:$USER $PROJECT_DIR
+    cd $PROJECT_DIR
+    
+    # Configure Git with token authentication
+    git config --global credential.helper store
+    echo "https://$USER:$GIT_TOKEN@github.com" > ~/.git-credentials
+    
+    if [ -d ".git" ]; then
+        print_status "Repository exists, pulling latest changes..."
+        git pull origin main
+    else
+        print_status "Cloning repository..."
+        git clone $GIT_REPO .
+    fi
+    
+    print_success "Repository updated"
+}
 
-chmod +x backup.sh
-echo "0 2 * * * /var/www/bmichat/backup.sh" | crontab -
-log_success "Sauvegarde configurée"
+# Function to setup environment
+setup_environment() {
+    print_status "Setting up environment..."
+    
+    cd $PROJECT_DIR
+    
+    # Create .env file if it doesn't exist
+    if [ ! -f ".env" ]; then
+        print_status "Creating .env file from template..."
+        if [ -f "env.example" ]; then
+            cp env.example .env
+            print_warning "Please edit .env file and configure your settings:"
+            echo "nano $PROJECT_DIR/.env"
+        else
+            print_error "env.example file not found"
+            exit 1
+        fi
+    else
+        print_status "Using existing .env file"
+    fi
+    
+    # Create necessary directories
+    mkdir -p data/sqlite data/uploads data/vectors logs
+    
+    print_success "Environment setup completed"
+}
 
-# Étape 9: Tests automatiques
-log_info "Étape 9: Tests automatiques..."
-sleep 10
+# Function to deploy application
+deploy_application() {
+    print_status "Deploying application..."
+    
+    cd $PROJECT_DIR
+    
+    # Stop existing containers
+    print_status "Stopping existing containers..."
+    docker-compose down --remove-orphans 2>/dev/null || true
+    
+    # Build and start containers
+    print_status "Building and starting containers..."
+    docker-compose up -d --build
+    
+    # Wait for services to be healthy
+    print_status "Waiting for services to be healthy..."
+    sleep 30
+    
+    # Check service health
+    print_status "Checking service health..."
+    
+    # Check backend
+    if curl -f http://localhost:3006/health > /dev/null 2>&1; then
+        print_success "Backend is healthy"
+    else
+        print_error "Backend health check failed"
+        docker-compose logs backend
+        exit 1
+    fi
+    
+    # Check frontend
+    if curl -f http://localhost:8095 > /dev/null 2>&1; then
+        print_success "Frontend is healthy"
+    else
+        print_error "Frontend health check failed"
+        docker-compose logs frontend
+        exit 1
+    fi
+    
+    print_success "Deployment completed successfully!"
+}
 
-if curl -f http://localhost:3006/health > /dev/null 2>&1; then
-    log_success "✅ Backend opérationnel"
-else
-    log_error "❌ Backend non opérationnel"
-fi
+# Function to show deployment info
+show_deployment_info() {
+    echo ""
+    print_status "Deployment Information:"
+    echo "  Backend API: http://localhost:3006"
+    echo "  Frontend: http://localhost:8095"
+    echo "  API Docs: http://localhost:3006/docs"
+    echo "  Health Check: http://localhost:3006/health"
+    echo ""
+    print_status "Useful commands:"
+    echo "  View logs: docker-compose logs -f"
+    echo "  Stop services: docker-compose down"
+    echo "  Restart services: docker-compose restart"
+    echo "  Check status: docker-compose ps"
+}
 
-if curl -f http://localhost:3003 > /dev/null 2>&1; then
-    log_success "✅ Frontend opérationnel"
-else
-    log_error "❌ Frontend non opérationnel"
-fi
+# Function to test endpoints
+test_endpoints() {
+    print_status "Testing endpoints..."
+    
+    # Test health endpoint
+    if curl -f http://localhost:3006/health > /dev/null 2>&1; then
+        print_success "Health endpoint: OK"
+    else
+        print_error "Health endpoint: FAILED"
+    fi
+    
+    # Test API docs
+    if curl -f http://localhost:3006/docs > /dev/null 2>&1; then
+        print_success "API docs: OK"
+    else
+        print_error "API docs: FAILED"
+    fi
+    
+    # Test frontend
+    if curl -f http://localhost:8095 > /dev/null 2>&1; then
+        print_success "Frontend: OK"
+    else
+        print_error "Frontend: FAILED"
+    fi
+}
 
-echo ""
-echo "🎉 DÉPLOIEMENT AUTOMATIQUE TERMINÉ !"
-echo "====================================="
-echo ""
-echo "📋 INTERVENTIONS MANUELLES REQUISES :"
-echo ""
-echo "1. 🔑 CONFIGURER LA CLÉ OPENAI :"
-echo "   nano /var/www/bmichat/.env"
-echo "   # Remplacez 'your_openai_api_key_here' par votre vraie clé"
-echo ""
-echo "2. 🔒 CONFIGURER SSL :"
-echo "   apt install -y certbot python3-certbot-nginx"
-echo "   certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email $EMAIL"
-echo ""
-echo "3. 🌐 POINTER LE DOMAINE :"
-echo "   # Dans votre panneau DNS, pointez $DOMAIN vers $IP"
-echo ""
-echo "4. 🧪 TESTS FINAUX :"
-echo "   curl https://$DOMAIN/health"
-echo "   curl -X POST https://$DOMAIN/api/chat -H 'Content-Type: application/json' -d '{\"message\":\"test\"}'"
-echo ""
-echo "📊 COMMANDES UTILES :"
-echo "   cd /var/www/bmichat"
-echo "   ./deploy-vps.sh status    # Statut des services"
-echo "   ./deploy-vps.sh logs      # Logs en temps réel"
-echo "   ./deploy-vps.sh backup    # Sauvegarde manuelle"
-echo ""
-echo "🌐 ACCÈS TEMPORAIRE :"
-echo "   Frontend: http://$IP:3003"
-echo "   Backend: http://$IP:3006"
-echo "   Health: http://$IP:3006/health"
-echo ""
-log_success "Script de déploiement terminé avec succès !" 
+# Main deployment function
+main() {
+    print_status "Starting automated deployment..."
+    
+    # Check if not running as root
+    check_root
+    
+    # Check prerequisites
+    check_prerequisites
+    
+    # Create backup
+    create_backup
+    
+    # Update repository
+    update_repository
+    
+    # Setup environment
+    setup_environment
+    
+    # Deploy application
+    deploy_application
+    
+    # Test endpoints
+    test_endpoints
+    
+    # Show deployment info
+    show_deployment_info
+    
+    print_success "🎉 Deployment completed successfully!"
+    print_status "Your BMI Chat application is now running!"
+}
+
+# Run main function
+main "$@" 

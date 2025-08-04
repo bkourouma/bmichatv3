@@ -230,7 +230,9 @@ class VectorService:
         enhanced_results = []
         for i, (chunk, distance, metadata, chunk_id) in enumerate(zip(chunks, distances, metadatas, ids)):
             # Base similarity score (convert distance to similarity)
-            similarity_score = 1.0 - distance
+            # Handle distances that can be > 1.0 by normalizing them
+            normalized_distance = min(distance, 2.0)  # Cap at 2.0 to avoid extreme values
+            similarity_score = max(0.0, 1.0 - normalized_distance)
 
             # Calculate ranking factors
             ranking_factors = self._calculate_ranking_factors(

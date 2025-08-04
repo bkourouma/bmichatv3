@@ -41,7 +41,7 @@ class RetrievalService:
         keywords_filter: Optional[List[str]] = None,
         document_ids_filter: Optional[List[str]] = None,
         prefer_qa_pairs: bool = True,
-        min_relevance_score: float = 0.3,
+        min_relevance_score: float = 0.0,
         use_reranking: bool = True
     ) -> List[Dict[str, Any]]:
         """
@@ -209,7 +209,8 @@ class RetrievalService:
         k: int = None,
         keywords_filter: Optional[List[str]] = None,
         confidence_threshold: float = 0.8,
-        fallback_threshold: float = 0.3
+        fallback_threshold: float = 0.3,
+        use_reranking: bool = True
     ) -> Tuple[List[Dict[str, Any]], str]:
         """
         Advanced retrieval with adaptive pipeline and confidence scoring.
@@ -241,8 +242,8 @@ class RetrievalService:
                 db_session=db_session,
                 k=k * 2,  # Get more chunks for evaluation
                 keywords_filter=keywords_filter,
-                use_reranking=True,
-                min_relevance_score=0.1  # Lower threshold for initial retrieval
+                use_reranking=use_reranking,
+                min_relevance_score=0.0  # Very low threshold for initial retrieval
             )
 
             if not chunks:

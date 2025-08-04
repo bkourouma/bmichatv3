@@ -25,6 +25,9 @@ RUN pip install -r requirements.txt
 COPY app/ ./app/
 COPY pyproject.toml ./
 
+# Copy documents directory
+COPY docs/ ./docs/
+
 # Create necessary directories and set permissions
 RUN mkdir -p data/sqlite data/uploads data/vectors logs && \
     chown -R appuser:appuser /app

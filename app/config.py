@@ -106,7 +106,7 @@ class Settings(BaseSettings):
     # Confidence thresholds for adaptive responses
     high_confidence_threshold: float = Field(default=0.8, env="HIGH_CONFIDENCE_THRESHOLD")
     medium_confidence_threshold: float = Field(default=0.5, env="MEDIUM_CONFIDENCE_THRESHOLD")
-    low_confidence_threshold: float = Field(default=0.3, env="LOW_CONFIDENCE_THRESHOLD")
+    low_confidence_threshold: float = Field(default=0.0, env="LOW_CONFIDENCE_THRESHOLD")
 
     # Re-ranking settings
     enable_reranking: bool = Field(default=True, env="ENABLE_RERANKING")
