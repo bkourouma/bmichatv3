@@ -95,7 +95,7 @@ async def semantic_search(
             keywords_filter=request.keywords,
             document_ids_filter=request.document_ids,
             prefer_qa_pairs=True,
-            min_relevance_score=request.min_score or 0.3
+            min_relevance_score=request.min_score if request.min_score is not None else 0.3
         )
         
         # Convert to response format

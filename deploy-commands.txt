@@ -1,0 +1,59 @@
+# 🚀 BMI Chat v2 Deployment Commands
+# Copy and paste these commands on your Linux VPS
+
+# Step 1: Connect to your server
+ssh root@your-server-ip
+
+# Step 2: Install dependencies
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl wget git unzip
+
+# Step 3: Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# Step 4: Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Step 5: Create project directory
+sudo mkdir -p /opt/bmichat
+sudo chown $USER:$USER /opt/bmichat
+cd /opt/bmichat
+
+# Step 6: Clone repository (will prompt for credentials)
+git clone https://github.com/bkourouma/bmichatv2.git .
+
+# Step 7: Setup environment
+cp env.example .env
+mkdir -p data/sqlite data/uploads data/vectors logs
+
+# Step 8: Deploy application
+docker-compose up -d --build
+
+# Step 9: Wait for services to start
+sleep 30
+
+# Step 10: Test deployment
+curl http://localhost:3006/health
+curl http://localhost:8095
+
+# Step 11: Configure OpenAI API key
+nano .env
+# Add your OpenAI API key: OPENAI_API_KEY=your_actual_key_here
+
+# Step 12: Restart services with new config
+docker-compose restart
+
+# Your application will be available at:
+# Frontend: http://your-server-ip:8095
+# Backend API: http://your-server-ip:3006
+# API Docs: http://your-server-ip:3006/docs
+# Health Check: http://your-server-ip:3006/health
+
+# Useful commands:
+# View logs: docker-compose logs -f
+# Stop services: docker-compose down
+# Restart services: docker-compose restart
+# Check status: docker-compose ps 

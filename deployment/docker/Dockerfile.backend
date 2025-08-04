@@ -3,44 +3,38 @@
 
 FROM python:3.11-slim
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser
 
-# Create non-root user first
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set work directory
+# Set working directory
 WORKDIR /app
 
-# Copy requirements file (we'll create this)
-COPY deployment/docker/requirements.txt ./
+# Copy dependency files
+COPY pyproject.toml poetry.lock ./
 
-# Install Python dependencies
-RUN pip install -r requirements.txt
+# Install Poetry and dependencies
+RUN pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev
 
-# Copy application code
+# Copy source code
 COPY app/ ./app/
-COPY pyproject.toml ./
+COPY deployment/ ./deployment/
 
-# Copy documents directory
-COPY docs/ ./docs/
-
-# Create necessary directories and set permissions
-RUN mkdir -p data/sqlite data/uploads data/vectors logs && \
+# Create necessary directories
+RUN mkdir -p /app/data /app/logs && \
     chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
 
-# Health check (using python instead of curl to avoid network dependencies)
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:3006/health')" || exit 1
-
 # Expose port
 EXPOSE 3006
 
-# Run the application
+# Start command
 CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3006"]

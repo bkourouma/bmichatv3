@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test du Widget BMI Chat</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+        
+        .demo-section {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .demo-section h3 {
+            color: #1f2937;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .demo-section p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .feature h4 {
+            color: #1f2937;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .feature p {
+            color: #6b7280;
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .widget-info {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .widget-info h4 {
+            color: #92400e;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .widget-info p {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 20px 0;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .cta {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 12px;
+            border: 1px solid #0ea5e9;
+        }
+        
+        .cta h3 {
+            color: #0c4a6e;
+            margin-bottom: 15px;
+        }
+        
+        .cta p {
+            color: #075985;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Test du Widget BMI Chat</h1>
+        <p class="subtitle">
+            Testez l'intégration du widget de chat comme sur un site web public
+        </p>
+        
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            Widget BMI Chat - Prêt à tester
+        </div>
+        
+        <div class="demo-section">
+            <h3>💬 Comment tester le widget</h3>
+            <p>
+                Cette page simule l'intégration du widget BMI Chat sur un site web public. 
+                Le widget apparaît en bas à droite de la page, exactement comme il le ferait 
+                sur votre site web.
+            </p>
+            <button class="test-button" onclick="openWidget()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                Ouvrir le Chat
+            </button>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h4>🎯 Test Réaliste</h4>
+                <p>Le widget fonctionne exactement comme sur un site web de production, avec toutes les fonctionnalités.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>💡 Interface Intuitive</h4>
+                <p>Interface de chat moderne et responsive qui s'adapte à tous les appareils.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>🤖 IA Intelligente</h4>
+                <p>Akissi, l'assistante BMI, répond à vos questions en utilisant la base de connaissances.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>⚡ Temps Réel</h4>
+                <p>Réponses instantanées avec indicateur de frappe et gestion des erreurs.</p>
+            </div>
+        </div>
+        
+        <div class="widget-info">
+            <h4>📋 Informations sur le widget</h4>
+            <p><strong>Assistant:</strong> Akissi</p>
+            <p><strong>Entreprise:</strong> BMI (Bureau Médical International)</p>
+            <p><strong>Position:</strong> Bas droite (personnalisable)</p>
+            <p><strong>Couleur:</strong> Bleu (#3b82f6) - personnalisable</p>
+            <p><strong>API:</strong> http://localhost:3006/api/chat</p>
+        </div>
+        
+        <div class="cta">
+            <h3>🚀 Prêt à intégrer ?</h3>
+            <p>
+                Une fois satisfait du test, vous pouvez copier le code d'intégration 
+                depuis l'interface d'administration et l'ajouter à votre site web.
+            </p>
+            <button class="test-button" onclick="window.open('http://localhost:3005/widgets', '_blank')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+                Aller à l'Administration
+            </button>
+        </div>
+    </div>
+
+    <!-- Widget Script - Simulation de l'intégration sur un site public -->
+    <script>
+        // Simulation du widget BMI Chat
+        let isWidgetOpen = false;
+        let widgetContainer = null;
+        
+        function createWidget() {
+            // Créer le bouton du widget
+            const button = document.createElement('div');
+            button.id = 'bmi-widget-button';
+            button.style.cssText = `
+                position: fixed;
+                right: 20px;
+                bottom: 20px;
+                width: 60px;
+                height: 60px;
+                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 9999;
+                box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+                transition: all 0.3s ease;
+            `;
+            
+            button.innerHTML = `
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+            `;
+            
+            button.addEventListener('click', toggleWidget);
+            button.addEventListener('mouseenter', () => {
+                button.style.transform = 'scale(1.1)';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'scale(1)';
+            });
+            
+            document.body.appendChild(button);
+        }
+        
+        function openWidget() {
+            if (!widgetContainer) {
+                createWidgetModal();
+            }
+            widgetContainer.style.display = 'flex';
+            isWidgetOpen = true;
+        }
+        
+        function toggleWidget() {
+            if (isWidgetOpen) {
+                closeWidget();
+            } else {
+                openWidget();
+            }
+        }
+        
+        function closeWidget() {
+            if (widgetContainer) {
+                widgetContainer.style.display = 'none';
+            }
+            isWidgetOpen = false;
+        }
+        
+        function createWidgetModal() {
+            widgetContainer = document.createElement('div');
+            widgetContainer.style.cssText = `
+                position: fixed;
+                right: 20px;
+                bottom: 90px;
+                width: 350px;
+                height: 500px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                z-index: 10000;
+                display: none;
+                flex-direction: column;
+                overflow: hidden;
+            `;
+            
+            widgetContainer.innerHTML = `
+                <div style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">Akissi</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Assistante BMI</div>
+                        </div>
+                    </div>
+                    <button onclick="closeWidget()" style="background: none; border: none; color: white; cursor: pointer; padding: 4px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div style="flex: 1; padding: 16px; overflow-y: auto;" id="chat-messages">
+                    <div style="background: #f3f4f6; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                        <p style="margin: 0; font-size: 14px; color: #374151;">
+                            Bonjour ! Je suis Akissi, votre assistante BMI. Comment puis-je vous aider ?
+                        </p>
+                        <p style="margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">
+                            ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </p>
+                    </div>
+                </div>
+                <div style="padding: 16px; border-top: 1px solid #e5e7eb;">
+                    <div style="display: flex; gap: 8px;">
+                        <input 
+                            type="text" 
+                            id="chat-input" 
+                            placeholder="Tapez votre message..."
+                            style="flex: 1; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; font-size: 14px;"
+                            onkeypress="if(event.key==='Enter') sendTestMessage()"
+                        />
+                        <button 
+                            onclick="sendTestMessage()"
+                            style="background: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(widgetContainer);
+        }
+        
+        function sendTestMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const messagesContainer = document.getElementById('chat-messages');
+            
+            // Ajouter le message utilisateur
+            const userMessage = document.createElement('div');
+            userMessage.style.cssText = 'display: flex; justify-content: flex-end; margin-bottom: 16px;';
+            userMessage.innerHTML = `
+                <div style="background: #3b82f6; color: white; padding: 12px; border-radius: 8px; max-width: 80%; border-bottom-right-radius: 4px;">
+                    <p style="margin: 0; font-size: 14px;">${message}</p>
+                    <p style="margin: 8px 0 0 0; font-size: 12px; opacity: 0.8;">
+                        ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    </p>
+                </div>
+            `;
+            messagesContainer.appendChild(userMessage);
+            
+            input.value = '';
+            
+            // Simuler une réponse de l'assistant
+            setTimeout(() => {
+                const assistantMessage = document.createElement('div');
+                assistantMessage.style.cssText = 'display: flex; justify-content: flex-start; margin-bottom: 16px;';
+                assistantMessage.innerHTML = `
+                    <div style="background: #f3f4f6; color: #374151; padding: 12px; border-radius: 8px; max-width: 80%; border-bottom-left-radius: 4px;">
+                        <p style="margin: 0; font-size: 14px;">
+                            Merci pour votre message ! Dans un environnement de production, je traiterais votre demande "${message}" en utilisant la base de connaissances BMI.
+                        </p>
+                        <p style="margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">
+                            ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </p>
+                    </div>
+                `;
+                messagesContainer.appendChild(assistantMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 1000);
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Initialiser le widget au chargement de la page
+        document.addEventListener('DOMContentLoaded', createWidget);
+    </script>
+</body>
+</html>
