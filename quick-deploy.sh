@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 GIT_REPO="https://github.com/bkourouma/bmichatv2.git"
-GIT_TOKEN="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"
+GIT_TOKEN="${GIT_TOKEN:-your_github_token_here}"
 PROJECT_DIR="/opt/bmichat"
 
 # Colors
