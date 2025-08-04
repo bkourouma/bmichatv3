@@ -17,7 +17,7 @@ services:
       - API_HOST=0.0.0.0
       - API_PORT=3006
       - API_WORKERS=2
-      - CORS_ORIGINS=["http://localhost:3003","http://localhost:8095","http://bmi.engage-360.net"]
+      - CORS_ORIGINS=["http://localhost:3003","http://localhost:8099","http://bmi.engage-360.net"]
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
       - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE:-0.0}
@@ -49,7 +49,7 @@ services:
     container_name: bmi-chat-frontend
     restart: unless-stopped
     ports:
-      - "3003:80"                 # host 3003 → container 80
+      - "8099:80"                 # host 8099 → container 80
     depends_on:
       backend:
         condition: service_healthy

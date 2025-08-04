@@ -204,7 +204,7 @@ services:
       dockerfile: ../deployment/docker/Dockerfile.frontend
     container_name: bmi-chat-frontend
     ports:
-      - "8095:80"
+      - "8099:80"
     depends_on:
       - backend
     restart: unless-stopped
@@ -217,7 +217,7 @@ server {
     server_name bmi.engage-360.net www.bmi.engage-360.net;
     
     location / {
-        proxy_pass http://127.0.0.1:8095;
+        proxy_pass http://127.0.0.1:8099;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -262,7 +262,7 @@ else
     exit 1
 fi
 
-if curl -f http://localhost:8095 > /dev/null 2>&1; then
+if curl -f http://localhost:8099 > /dev/null 2>&1; then
     echo "✅ Frontend is healthy"
 else
     echo "❌ Frontend health check failed"
@@ -272,7 +272,7 @@ fi
 
 echo "🎉 BMI Chat v3 deployed successfully!"
 echo "Backend: http://localhost:3006"
-echo "Frontend: http://localhost:8095"
+echo "Frontend: http://localhost:8099"
 echo "Domain: http://bmi.engage-360.net"
 EOF
 

@@ -36,7 +36,7 @@ services:
     container_name: bmi-chat-frontend
     restart: unless-stopped
     ports:
-      - "8095:80"
+      - "8099:80"
     depends_on:
       backend:
         condition: service_healthy
