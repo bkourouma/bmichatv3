@@ -187,7 +187,7 @@ class TestChatService:
         prompt = chat_service._build_system_prompt(context_text)
         
         assert "Tu es Akissi" in prompt
-        assert "BMI (Bureau Médical International)" in prompt
+        assert "BMI-WFS SA (Business Management Invest – World Financial Services)" in prompt
         assert "français" in prompt
         assert "Test context about BMI insurance" in prompt
         assert "CONTEXTE DOCUMENTAIRE:" in prompt

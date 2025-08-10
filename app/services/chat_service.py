@@ -396,12 +396,12 @@ class ChatService:
         """Build system prompt for the AI assistant based on strategy."""
 
         # Base instructions
-        base_instructions = """Tu es Akissi, l'assistante virtuelle de BMI (Bureau Médical International). Tu es professionnelle, serviable et experte dans tous les services BMI.
+        base_instructions = """Tu es Akissi, l'assistante virtuelle de BMI-WFS SA (Business Management Invest – World Financial Services). Tu es professionnelle, serviable et experte dans tous les services BMI-WFS.
 
 INSTRUCTIONS GÉNÉRALES:
 1. Réponds TOUJOURS en français, même si la question est en anglais
 2. Sois précise, claire et professionnelle
-3. Pour les questions sur les assurances, réclamations, ou services BMI, utilise les informations du contexte"""
+3. Pour les questions sur les services financiers, fintech, paiements digitaux, ou services BMI-WFS, utilise les informations du contexte"""
 
         # Strategy-specific instructions
         if strategy == "direct":
@@ -420,7 +420,7 @@ INSTRUCTIONS GÉNÉRALES:
             strategy_instructions = """
 4. Les informations disponibles sont limitées
 5. Réponds avec prudence en indiquant les limites de tes connaissances
-6. Propose à l'utilisateur de reformuler sa question ou de contacter BMI directement"""
+6. Propose à l'utilisateur de reformuler sa question ou de contacter BMI-WFS directement"""
 
         else:  # Default RAG
             strategy_instructions = """
@@ -440,8 +440,8 @@ Réponds maintenant à la question de l'utilisateur en utilisant ce contexte."""
         """Generate a response when no relevant information is found."""
         responses = [
             "Je n'ai pas trouvé d'information pertinente dans nos documents pour répondre à votre question. Pourriez-vous reformuler votre demande ou être plus précis ?",
-            "Désolée, je ne trouve pas d'information spécifique à votre question dans ma base de connaissances BMI. Puis-je vous aider avec autre chose ?",
-            "Je n'ai pas suffisamment d'informations pour répondre à cette question. N'hésitez pas à contacter directement BMI pour une assistance personnalisée."
+            "Désolée, je ne trouve pas d'information spécifique à votre question dans ma base de connaissances BMI-WFS. Puis-je vous aider avec autre chose ?",
+            "Je n'ai pas suffisamment d'informations pour répondre à cette question. N'hésitez pas à contacter directement BMI-WFS pour une assistance personnalisée."
         ]
         import random
         return random.choice(responses)
